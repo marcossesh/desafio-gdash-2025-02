@@ -17,9 +17,10 @@ interface WeatherDisplayProps {
   logs: WeatherLog[];
   loading: boolean;
   onRefresh: () => void;
+  refreshError: string;
 }
 
-export function WeatherDisplay({ logs, loading, onRefresh }: WeatherDisplayProps) {
+export function WeatherDisplay({ logs, loading, onRefresh, refreshError }: WeatherDisplayProps) {
   const latest = logs[0];
 
   return (
@@ -32,6 +33,28 @@ export function WeatherDisplay({ logs, loading, onRefresh }: WeatherDisplayProps
       
       {/* Glow atrás do card principal (flutuação) */}
       <div className="fixed -z-10 top-1/3 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 rounded-full blur-3xl opacity-40"></div>
+      
+      {/* Alert de Refresh Rate Limiting */}
+      <AnimatePresence>
+        {refreshError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <div className="bg-slate-800/40 border border-amber-500/40 rounded-2xl px-6 py-4 backdrop-blur-xl shadow-2xl max-w-sm w-full">
+              <div className="flex items-center gap-3">
+                <div className="text-xl">⏱️</div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-amber-300">{refreshError}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Cabeçalho Animado */}
       <motion.div 
