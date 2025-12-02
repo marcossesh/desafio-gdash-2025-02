@@ -364,9 +364,6 @@ show_status() {
 # Parar todos os serviços
 stop_all() {
     info "Parando todos os serviços..."
-    
-    # Redirecionar stderr para /dev/null para evitar travamento do terminal
-    exec 2>/dev/null
 
     # Parar por PID se temos arquivo
     local services=("backend" "producer" "frontend" "worker")
@@ -376,55 +373,29 @@ stop_all() {
             local pid=$(cat "$pid_file" 2>/dev/null)
             if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
                 kill -9 "$pid" 2>/dev/null || true
-                log "$service parado (PID: $pid)"
+                log "$service parado (PID: $pid)" 2>/dev/null || true
             fi
-            rm -f "$pid_file" 2>/dev/null
+            rm -f "$pid_file" 2>/dev/null || true
         fi
     done
 
-    # Mata por pattern (mais confiável) - com background para não bloquear
-    {
-        pkill -9 -f "node.*main.js" >/dev/null 2>&1 || true
-        pkill -9 -f "python.*producer" >/dev/null 2>&1 || true
-        pkill -9 -f "vite" >/dev/null 2>&1 || true
-        pkill -9 -f "worker" >/dev/null 2>&1 || true
-        pkill -9 node >/dev/null 2>&1 || true
-    } &
+    # Mata por pattern de forma síncrona e segura
+    pkill -9 -f "node" >/dev/null 2>&1 || true
+    pkill -9 -f "python" >/dev/null 2>&1 || true
+    pkill -9 -f "vite" >/dev/null 2>&1 || true
     
-    local kill_pid=$!
-    
-    # Aguarde com timeout (máx 2 segundos)
-    local timeout=20
-    while [ $timeout -gt 0 ] && kill -0 $kill_pid 2>/dev/null; do
-        sleep 0.1
-        timeout=$((timeout - 1))
-    done
-    
-    log "Processos Node/Python/Vite/Go interrompidos"
+    log "Processos Node/Python/Vite interrompidos" 2>/dev/null || true
 
-    # Parar Docker containers (com timeout)
-    {
-        timeout 5 docker stop rabbitmq mongodb >/dev/null 2>&1 || true
-    } &
-    
+    # Parar Docker containers
+    if command -v docker &> /dev/null; then
+        docker stop rabbitmq mongodb 2>/dev/null || true
+        log "Containers Docker parados" 2>/dev/null || true
+    fi
+
     # Aguarde um pouco para garantir limpeza
     sleep 1
 
-    # Verificar se ainda há processos problemáticos
-    if pgrep -f "node" >/dev/null 2>&1; then
-        warn "Alguns processos Node ainda estão rodando, killando com força..."
-        pkill -9 node >/dev/null 2>&1 || true
-    fi
-
-    if pgrep -f "python" >/dev/null 2>&1; then
-        warn "Alguns processos Python ainda estão rodando, killando com força..."
-        pkill -9 python >/dev/null 2>&1 || true
-    fi
-
-    log "Logs preservados em: $PROJECT_DIR/logs/"
-    
-    # Restaurar stderr
-    exec 2>&1
+    log "Logs preservados em: $PROJECT_DIR/logs/" 2>/dev/null || true
 }
 
 # Ativar ou criar venv do Python

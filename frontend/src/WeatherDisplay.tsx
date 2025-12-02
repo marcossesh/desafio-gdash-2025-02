@@ -30,7 +30,11 @@ export function WeatherDisplay({ logs: propLogs, loading: propLoading, onRefresh
   const [logs, setLogs] = useState<WeatherLog[]>(propLogs || []);
   const [loading, setLoading] = useState(propLoading || false);
   const [refreshError, setRefreshError] = useState(propRefreshError || '');
-  const [lastRefreshTime, setLastRefreshTime] = useState<number>(0);
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(() => {
+    // Recuperar lastRefreshTime do localStorage ao inicializar
+    const stored = localStorage.getItem('lastWeatherRefreshTime');
+    return stored ? parseInt(stored, 10) : 0;
+  });
   const [exportLoading, setExportLoading] = useState<'csv' | 'xlsx' | null>(null);
 
   const fetchWeather = async (isManual: boolean = false) => {
@@ -55,6 +59,8 @@ export function WeatherDisplay({ logs: propLogs, loading: propLoading, onRefresh
       const data = await response.json();
       setLogs(data);
       setLastRefreshTime(now);
+      // Persistir no localStorage
+      localStorage.setItem('lastWeatherRefreshTime', now.toString());
     } catch (error) {
       console.error("❌ Erro ao buscar clima:", error);
     } finally {
