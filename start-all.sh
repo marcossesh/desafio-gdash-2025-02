@@ -372,6 +372,8 @@ stop_all() {
         if [ -f "$pid_file" ]; then
             local pid=$(cat "$pid_file" 2>/dev/null)
             if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                # Tentar matar filhos primeiro (para evitar processos órfãos)
+                pkill -P "$pid" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 log "$service parado (PID: $pid)" 2>/dev/null || true
             fi
@@ -380,11 +382,12 @@ stop_all() {
     done
 
     # Mata por pattern de forma síncrona e segura
-    pkill -9 -f "node" >/dev/null 2>&1 || true
-    pkill -9 -f "python" >/dev/null 2>&1 || true
-    pkill -9 -f "vite" >/dev/null 2>&1 || true
+    # REMOVIDO: Comandos pkill globais causavam crash na IDE e no plugin Gemini
+    # pkill -9 -f "node" >/dev/null 2>&1 || true
+    # pkill -9 -f "python" >/dev/null 2>&1 || true
+    # pkill -9 -f "vite" >/dev/null 2>&1 || true
     
-    log "Processos Node/Python/Vite interrompidos" 2>/dev/null || true
+    log "Processos interrompidos" 2>/dev/null || true
 
     # Parar Docker containers
     if command -v docker &> /dev/null; then

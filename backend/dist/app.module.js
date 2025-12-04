@@ -16,6 +16,7 @@ const weather_module_1 = require("./weather/weather.module");
 const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
 const database_module_1 = require("./dabatase/database.module");
+const pokemon_module_1 = require("./pokemon/pokemon.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +31,7 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
             database_module_1.DatabaseModule,
+            pokemon_module_1.PokemonModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

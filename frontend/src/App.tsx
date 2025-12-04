@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { UsersPage } from './pages/UsersPage';
+import { PokemonPage } from './pages/PokemonPage';
 import { WeatherDisplay } from './WeatherDisplay';
 
 function App() {
@@ -26,6 +27,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <UsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pokemon"
+            element={
+              <ProtectedRoute>
+                <PokemonPage />
               </ProtectedRoute>
             }
           />
