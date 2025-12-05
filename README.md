@@ -39,12 +39,12 @@ O projeto segue uma arquitetura baseada em eventos e microsserviços:
 
 ```mermaid
 graph LR
-    A[Producer (Python)] -->|JSON| B(RabbitMQ)
-    B -->|Consome| C[Worker (Go)]
-    C -->|HTTP POST| D[Backend API (NestJS)]
+    A["Producer (Python)"] -->|JSON| B(RabbitMQ)
+    B -->|Consome| C["Worker (Go)"]
+    C -->|HTTP POST| D["Backend API (NestJS)"]
     D <-->|Leitura/Escrita| E[(MongoDB)]
-    D -->|Gera Insights| F[Google Gemini AI]
-    G[Frontend (React)] <-->|REST API| D
+    D -->|Gera Insights| F["Google Gemini AI"]
+    G["Frontend (React)"] <-->|REST API| D
 ```
 
 ---
