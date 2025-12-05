@@ -149,10 +149,26 @@ cp backend/.env.example backend/.env
 # EDITE o arquivo backend/.env e adicione sua GEMINI_API_KEY
 ```
 
-### 2. Execução Automática (Recomendado)
+### 2. Setup Automático (Recomendado)
 
-Utilize o script `start-all.sh` para gerenciar todo o ciclo de vida da aplicação.
+Execute o script de setup para verificar o ambiente e instalar dependências automaticamente.
 
+**Linux/Mac:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
+
+### 3. Execução do Sistema
+
+Utilize o script `start-all` para gerenciar todo o ciclo de vida da aplicação.
+
+**Linux/Mac:**
 ```bash
 # Iniciar todos os serviços
 ./start-all.sh start
@@ -164,9 +180,19 @@ Utilize o script `start-all.sh` para gerenciar todo o ciclo de vida da aplicaç�
 ./start-all.sh stop
 ```
 
-> **Nota**: O script irá verificar dependências, subir containers Docker (RabbitMQ, MongoDB), criar ambiente virtual Python, instalar dependências e iniciar todos os serviços.
+**Windows:**
+```powershell
+# Iniciar todos os serviços
+powershell -ExecutionPolicy Bypass -File .\start-all.ps1 start
 
-### 3. Execução Manual (Passo a Passo)
+# Verificar status
+powershell -ExecutionPolicy Bypass -File .\start-all.ps1 status
+
+# Parar tudo
+powershell -ExecutionPolicy Bypass -File .\start-all.ps1 stop
+```
+
+### 4. Execução Manual (Passo a Passo)
 
 Caso prefira rodar cada serviço individualmente:
 
@@ -228,26 +254,54 @@ npm run dev
 
 ## Troubleshooting
 
-### Portas em Uso
-Se o script falhar ao iniciar devido a portas em uso, ele tentará alocar novas portas automaticamente. Verifique o output do terminal para ver as portas atribuídas.
+### Problemas Comuns
 
-### Erro de Conexão com RabbitMQ/MongoDB
-Certifique-se de que os containers Docker estão rodando:
+#### 1. "Command not found" ou "Não reconhecido"
+Certifique-se de que instalou todos os pré-requisitos (Node, Python, Go, Docker) e que eles estão acessíveis no PATH do sistema.
+- Tente fechar e reabrir o terminal.
+- No Windows, use o PowerShell como Administrador.
+
+#### 2. Erro de Conexão com RabbitMQ/MongoDB
+Se os serviços falharem ao conectar, verifique se os containers Docker estão rodando:
 ```bash
 docker ps
 ```
-Se necessário, reinicie os containers ou o script `./start-all.sh restart`.
+Se não estiverem listados:
+```bash
+# Reinicie os containers manualmente se necessário
+docker start rabbitmq mongodb
+# Ou reinicie via script
+./start-all.sh restart
 
-### Logs
-Verifique os logs individuais que estão na pasta logs para diagnósticos detalhados:
+powershell -ExecutionPolicy Bypass -File .\start-all.ps1 stop
+powershell -ExecutionPolicy Bypass -File .\start-all.ps1 start
+```
+
+#### 3. Portas em Uso (EADDRINUSE)
+Se o script falhar dizendo que a porta 3000, 5173, etc. está em uso:
+- Verifique se já não há outra instância do projeto rodando.
+- Encerre os processos que estão usando essas portas.
+- O script `start-all` tenta detectar isso, mas em alguns casos pode ser necessário intervir manualmente.
+
+#### 4. Python: "Module not found"
+Se o Producer falhar com erro de importação:
+- Verifique se o ambiente virtual (`venv`) foi criado e ativado.
+- Execute `pip install -r requirements.txt` (se houver) ou instale manualmente: `pip install requests pika`.
+
+#### 5. Backend: Erro de API Key
+Se o backend iniciar mas der erro ao gerar insights:
+- Verifique se você configurou corretamente a `GEMINI_API_KEY` no arquivo `backend/.env`.
+
+### Logs Detalhados
+Verifique os logs individuais na pasta `logs/` para diagnósticos precisos:
 - Backend: `tail -f logs/backend.log`
 - Worker: `tail -f logs/worker.log`
 - Producer: `tail -f logs/producer.log`
 
-### Permissões
-Se tiver problemas de permissão com o script:
+### Permissões (Linux/Mac)
+Se tiver problemas de permissão com os scripts `.sh`:
 ```bash
-chmod +x start-all.sh
+chmod +x setup.sh start-all.sh
 ```
 
 ---
