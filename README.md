@@ -237,6 +237,14 @@ npm run dev
 
 ---
 
+## Credenciais de Acesso
+
+Para acessar o sistema com privilégios administrativos, utilize as credenciais abaixo:
+- **Email**: `admin@gdash.com`
+- **Senha**: `admin123456`
+
+---
+
 ## Estrutura do Projeto
 
 ```
